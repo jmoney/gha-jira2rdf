@@ -74,8 +74,8 @@ if __name__ == "__main__":
                 for sprint in issue.get_field(sprint_field):
                     g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.sprint, rdflib.Literal(sprint.name)))
             
-        page += 1
         issues = jira.search_issues(jql_str=args.jql, fields="*all", startAt=page*args.max_results, maxResults=args.max_results)
+        page += 1
 
     print(g.serialize(format=args.format))
         
