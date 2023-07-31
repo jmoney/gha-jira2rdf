@@ -1,0 +1,27 @@
+name: 'gha-jira2rdf'
+description: 'JIRA to RDF'
+inputs:
+  jira-server:
+    description: 'JIRA Server'
+    required: true
+  username:
+    description: 'Username to connect to JIRA'
+    required: true
+  max-results:
+    description: 'Max results per page'
+    required: true
+  jql:
+    description: 'JQL to filter issues'
+    required: true
+  output:
+    description: 'Output file'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.jira-server }}
+    - ${{ inputs.username }}
+    - ${{ inputs.max-results }}
+    - ${{ inputs.jql }}
+    - ${{ inputs.output }}
