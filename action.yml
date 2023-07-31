@@ -1,4 +1,4 @@
-name: 'gha-jira2rdf'
+name: 'jira2rdf'
 description: 'JIRA to RDF'
 inputs:
   jira-server:

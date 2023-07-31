@@ -14,7 +14,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="JIRA to RDF")
     parser.add_argument("--jira-server", type=str, required=True, help="JIRA server URL", dest="jira_server")
     parser.add_argument("--username", type=str, required=True, help="JIRA username", dest="username")
-    # parser.add_argument("--api-token", type=str, required=True, help="JIRA API token", dest="api_token")
     parser.add_argument("--max-results", type=int, default=10, help="Max results to return")
     parser.add_argument("--jql", type=str, required=True, help="JQL query to run", dest="jql")
     parser.add_argument("--format", type=str, default="turtle", help="RDF format to output", dest="format")
