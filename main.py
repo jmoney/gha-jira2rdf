@@ -39,6 +39,7 @@ if __name__ == "__main__":
         # print(len(issues))
         for issue in issues:
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), rdflib.RDF.type, JIRA_NS.Issue))
+            g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.key, rdflib.Literal(issue.key)))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.issuetype, rdflib.Literal(issue.get_field("issuetype"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.project, rdflib.Literal(issue.get_field("project"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.summary, rdflib.Literal(issue.get_field("summary"))))
