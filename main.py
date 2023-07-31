@@ -1,7 +1,9 @@
 import argparse
+import datetime
 import jira
 import os
 import rdflib
+import sys
 
 from jira import JIRA
 
@@ -34,17 +36,38 @@ if __name__ == "__main__":
     issues = jira.search_issues(jql_str=args.jql, fields="*all", startAt=0, maxResults=args.max_results)
     page = 1
     while len(issues) > 0:
+        # print(len(issues))
         for issue in issues:
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), rdflib.RDF.type, JIRA_NS.Issue))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.issuetype, rdflib.Literal(issue.get_field("issuetype"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.project, rdflib.Literal(issue.get_field("project"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.summary, rdflib.Literal(issue.get_field("summary"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.status, rdflib.Literal(issue.get_field("status"))))
-            g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.resolved, rdflib.Literal(issue.get_field("resolutiondate"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.created, rdflib.Literal(issue.get_field("created"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.updated, rdflib.Literal(issue.get_field("updated"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.priority, rdflib.Literal(issue.get_field("priority"))))
+
+            if issue.get_field("priority").name == "Not prioritized":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(999, datatype=rdflib.XSD.integer)))
+            elif issue.get_field("priority").name == "Highest":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(1, datatype=rdflib.XSD.integer)))
+            elif issue.get_field("priority").name == "High":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(2, datatype=rdflib.XSD.integer)))
+            elif issue.get_field("priority").name == "Medium":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(3, datatype=rdflib.XSD.integer)))
+            elif issue.get_field("priority").name == "Low":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(4, datatype=rdflib.XSD.integer)))
+            elif issue.get_field("priority").name == "Lowest":
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.rank, rdflib.Literal(5, datatype=rdflib.XSD.integer)))
+            else:
+                print("I don't know how to handle this priority", issue.get_field("priority"), file=sys.stderr)
+
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.resolution, rdflib.Literal(issue.get_field("resolution"))))
+
+            if issue.get_field("resolutiondate") is not None:
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.resolved, rdflib.Literal(issue.get_field("resolutiondate"))))
+                iso_datetime = datetime.datetime.strptime(issue.get_field("resolutiondate"), "%Y-%m-%dT%H:%M:%S.%f%z")
+                g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.day_of_resolution, rdflib.Literal(iso_datetime.date(), datatype=rdflib.XSD.date)))
             if issue.get_field(sprint_field):
                 for sprint in issue.get_field(sprint_field):
                     g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.sprint, rdflib.Literal(sprint.name)))
