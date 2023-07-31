@@ -27,6 +27,10 @@ if __name__ == "__main__":
     g = rdflib.Graph()
     g.bind("jira", JIRA_NS)
     g.bind("", DEFAULT)
+    sprint_field = ""
+    for field in jira.fields():
+        if "Sprint" in field["clauseNames"]:
+            sprint_field = field["key"]
     issues = jira.search_issues(jql_str=args.jql, fields="*all", startAt=0, maxResults=args.max_results)
     page = 1
     while len(issues) > 0:
@@ -41,6 +45,10 @@ if __name__ == "__main__":
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.updated, rdflib.Literal(issue.get_field("updated"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.priority, rdflib.Literal(issue.get_field("priority"))))
             g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.resolution, rdflib.Literal(issue.get_field("resolution"))))
+            if issue.get_field(sprint_field):
+                for sprint in issue.get_field(sprint_field):
+                    g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.sprint, rdflib.Literal(sprint.name)))
+            
         page += 1
         issues = jira.search_issues(jql_str=args.jql, fields="*all", startAt=page*args.max_results, maxResults=args.max_results)
 
