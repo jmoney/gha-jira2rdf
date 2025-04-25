@@ -71,9 +71,6 @@ if __name__ == "__main__":
                 g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.resolved, rdflib.Literal(issue.get_field("resolutiondate"))))
                 iso_datetime = datetime.datetime.strptime(issue.get_field("resolutiondate"), "%Y-%m-%dT%H:%M:%S.%f%z")
                 g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.day_of_resolution, rdflib.Literal(iso_datetime.date(), datatype=rdflib.XSD.date)))
-            if issue.get_field(sprint_field) is not None:
-                for sprint in issue.get_field(sprint_field):
-                    g.add((rdflib.URIRef(f'{jira.server_url}/browse/{issue.key}'), JIRA_NS.sprint, rdflib.Literal(sprint.name)))
             
         issues = jira.search_issues(jql_str=args.jql, fields="*all", startAt=page*args.max_results, maxResults=args.max_results)
         page += 1
